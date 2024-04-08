@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watches List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/public/pages/stylesheets/read.css">
+</head>
+<body>
+    <h2>Lọc sản phẩm</h2>
+    <form id="FindFilter" method="GET">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+
+        <label for="brand">Brand:</label>
+        <input type="text" id="brand" name="brand">
+
+        <label for="size">Size(mm):</label>
+        <input type="number" id="size" name="size">
+
+        <label for="minPrice">Min Price:</label>
+        <input type="number" id="minPrice" name="minPrice">
+
+        <label for="maxPrice">Max Price:</label>
+        <input type="number" id="maxPrice" name="maxPrice">
+
+        <button type="submit">Search</button>
+    </form>
+    <h1>Danh sách Đồng hồ</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Size(mm)</th>
+            <th>Price</th>
+            <th>Image</th>
+        </tr>
+        <tbody id="watchesTableBody">
+            <!-- Data will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('FindFilter').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const searchParams = new URLSearchParams(formData);
+
+            try {
+                const response = await fetch('/api/search?' + searchParams.toString(), {
+                    method: 'GET'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const watches = await response.json();
+
+                let dataRows = '';
+                watches.forEach((watch) => {
+                    dataRows += `<tr>
+                                    <td>${watch.id}</td>
+                                    <td>${watch.name}</td>
+                                    <td>${watch.brand}</td>
+                                    <td>${watch.size}</td>
+                                    <td>${watch.price}</td>
+                                    <td><img src="${watch.image}" width="100" /></td>
+                                </tr>`;
+                });
+
+                document.getElementById('watchesTableBody').innerHTML = dataRows;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
